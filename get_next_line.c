@@ -15,10 +15,17 @@
 char	*get_next_line(int fd)
 {
 	char	*buffer;
-	char	*str;
+	static char	*str;
 	char	*temp;
 	ssize_t	size;
 
+	if(str != NULL && ft_strchr(str, '\n'))
+		{
+			free(str);
+			str = NULL;
+		}
+	if (BUFFER_SIZE <= 0)
+		return (NULL);
 	buffer = malloc(BUFFER_SIZE + 1);
 	size = read(fd, buffer, BUFFER_SIZE);
 	while (size > 0)
@@ -37,7 +44,7 @@ char	*get_next_line(int fd)
 		size = read(fd, buffer, BUFFER_SIZE);
 	}
 	free(buffer);
-	if (size == -1 || BUFFER_SIZE <= 0)
+	if (size == -1)
 		return (NULL);
 	if (str == NULL && size == 0)
 		return (NULL);

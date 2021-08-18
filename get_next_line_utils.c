@@ -54,35 +54,34 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (NULL);
 	pos1 = 0;
 	pos2 = 0;
-	while (s1[pos1] != '\0')
+	while (s1 != NULL && s1[pos1] != '\0')
 	{
 		str[pos1] = s1[pos1];
 		pos1++;
 	}
-	while (s2[pos2] != '\0')
+	while (s1 != NULL && s2[pos2] != '\0')
 	{
 		str[pos1 + pos2] = s2[pos2];
 		pos2++;
 	}
+	str[pos1 + pos2] = '\0';
 	return (str);
 }
 
-char	*ft_strchr(const char *s, int c)
+char	*ft_strchr(char *s, int c)
 {
-	unsigned char	*str;
-	unsigned char	char_c;
+	char	*str;
+	char	char_c;
 
-	str = (unsigned char *) s;
-	char_c = (unsigned char) c;
+	str = s;
+	char_c =(char) c;
 	while (*str != '\0')
 	{
 		if (*str == char_c)
 		{
-			return ((char *)str);
+			return (str);
 		}
 		str++;
 	}
-	if (char_c == '\0')
-		return ((char *)str);
 	return (NULL);
 }
