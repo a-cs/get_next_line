@@ -26,7 +26,7 @@ char	*get_next_line(int fd)
 		}
 	if (BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer = malloc(BUFFER_SIZE + 1);
+	buffer = calloc((BUFFER_SIZE + 1),1);
 	size = read(fd, buffer, BUFFER_SIZE);
 	while (size > 0)
 	{
