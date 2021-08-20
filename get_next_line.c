@@ -12,63 +12,84 @@
 
 #include "get_next_line.h"
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-	char *buffer;
-	static char *str;
-	char *temp;
-	char *new_temp;
-	char *line;
-	ssize_t size;
-	int		pos;
+	static char	*str;
+	char		*buffer;
+	char		*line;
+	ssize_t		size;
 
-	str = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer = calloc((BUFFER_SIZE + 1), sizeof(char));
+	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	if (read(fd, buffer, BUFFER_SIZE) <= 0)
+	if (read(fd, buffer, 0) < 0)
 	{
 		ft_free(buffer);
 		return (NULL);
 	}
 	if (!str)
-		str = ft_strdup(buffer);
+		str = ft_strdup("");
+	size = ft_get_line(&str, &buffer, &line, fd);
+	ft_free(buffer);
+	if (size <= 0 && !line)
+		return (NULL);
+	return (line);
+}
+
+ssize_t	ft_get_line(char **str, char **buffer, char **line, int fd)
+{
+	ssize_t	size;
+	char	*temp;
+
 	size = 1;
-	while (!ft_strchr(str, '\n') && size)
+	while (!ft_strchr(*str, '\n') && size)
 	{
-		size = read(fd, buffer, BUFFER_SIZE);
-		buffer[size] = '\0';
-		temp = str;
-		str = ft_strjoin(temp, buffer);
+		size = read(fd, *buffer, BUFFER_SIZE);
+		(*buffer)[size] = '\0';
+		temp = *str;
+		*str = ft_strjoin(temp, *buffer);
 		free(temp);
 	}
-	pos = 0;
-	while(str[pos] != '\0')
+	*line = ft_split_line(str);
+	if (size == 0 && !(*str)[0])
 	{
-		if(str[pos] == '\n')
+		free(*str);
+		*str = NULL;
+		return (0);
+	}
+	if (!*line)
+		ft_free(*line);
+	return (size);
+}
+
+char	*ft_split_line(char **str)
+{
+	int		pos;
+	char	*line;
+	char	*temp;
+
+	pos = 0;
+	while ((*str)[pos] != '\0')
+	{
+		if ((*str)[pos] == '\n')
 		{
 			pos++;
 			break ;
 		}
 		pos++;
 	}
-	if(pos == 0 || !str)
+	if (pos == 0 || !*str)
 		return (NULL);
-	new_temp = str;
-	line = ft_substr(new_temp, 0, pos);
-	// str = ft_strdup((str)[pos]);
-	ft_free(new_temp);
-	ft_free(buffer);
-	if (size == 0 && !line)
-	{
-		return (NULL);
-	}
+	temp = *str;
+	line = ft_substr(temp, 0, pos);
+	*str = ft_strdup(&(*str)[pos]);
+	ft_free(temp);
 	return (line);
 }
 
-void ft_free(void *var)
+void	ft_free(void *var)
 {
 	free(var);
 	var = NULL;
