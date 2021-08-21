@@ -12,33 +12,38 @@
 
 #include "get_next_line.h"
 
-char	*get_next_line(int fd)
+static void	ft_free(void *var)
 {
-	static char	*str;
-	char		*buffer;
-	char		*line;
-	ssize_t		size;
+	free(var);
+	var = NULL;
+}
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer)
-		return (NULL);
-	if (read(fd, buffer, 0) < 0)
+static char	*ft_split_line(char **str)
+{
+	int		pos;
+	char	*line;
+	char	*temp;
+
+	pos = 0;
+	while ((*str)[pos] != '\0')
 	{
-		ft_free(buffer);
-		return (NULL);
+		if ((*str)[pos] == '\n')
+		{
+			pos++;
+			break ;
+		}
+		pos++;
 	}
-	if (!str)
-		str = ft_strdup("");
-	size = ft_get_line(&str, &buffer, &line, fd);
-	ft_free(buffer);
-	if (size <= 0 && !line)
+	if (pos == 0 || !*str)
 		return (NULL);
+	temp = *str;
+	line = ft_substr(temp, 0, pos);
+	*str = ft_strdup(&(*str)[pos]);
+	ft_free(temp);
 	return (line);
 }
 
-ssize_t	ft_get_line(char **str, char **buffer, char **line, int fd)
+static ssize_t	ft_get_line(char **str, char **buffer, char **line, int fd)
 {
 	ssize_t	size;
 	char	*temp;
@@ -64,33 +69,28 @@ ssize_t	ft_get_line(char **str, char **buffer, char **line, int fd)
 	return (size);
 }
 
-char	*ft_split_line(char **str)
+char	*get_next_line(int fd)
 {
-	int		pos;
-	char	*line;
-	char	*temp;
+	static char	*str;
+	char		*buffer;
+	char		*line;
+	ssize_t		size;
 
-	pos = 0;
-	while ((*str)[pos] != '\0')
-	{
-		if ((*str)[pos] == '\n')
-		{
-			pos++;
-			break ;
-		}
-		pos++;
-	}
-	if (pos == 0 || !*str)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	temp = *str;
-	line = ft_substr(temp, 0, pos);
-	*str = ft_strdup(&(*str)[pos]);
-	ft_free(temp);
+	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buffer)
+		return (NULL);
+	if (read(fd, buffer, 0) < 0)
+	{
+		ft_free(buffer);
+		return (NULL);
+	}
+	if (!str)
+		str = ft_strdup("");
+	size = ft_get_line(&str, &buffer, &line, fd);
+	ft_free(buffer);
+	if (size <= 0 && !line)
+		return (NULL);
 	return (line);
-}
-
-void	ft_free(void *var)
-{
-	free(var);
-	var = NULL;
 }
